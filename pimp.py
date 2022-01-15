@@ -2,7 +2,7 @@
 import os
 
 import colorama
-import lib
+import pimp.lib as lib
 Fore			=			colorama.Fore
 Style			=			colorama.Style
 pkg				=			lib.pkg.pkg
@@ -16,9 +16,12 @@ def lsR(cd,pyscrs_all):
 		lsR(dir,pyscrs_all)
 	return pyscrs_all
 
+def find_masterpkg(path):
+	masterpkg=pkg.find_masterpkg(path)
+	return masterpkg
 
 def show(cd='.'):
-	path=pkg.find_masterpkg()
+	path=pkg.find_masterpkg(cd)
 	all_py=lsR(path,[])
 	lines=[]
 	files=[]
@@ -81,16 +84,41 @@ def show(cd='.'):
 		# 		newfile=False
 		#
 
-				
-
-				
-	# for f in files:
-	# 	# nlines+=[f'{[line for line in nline]}{Style.RESET_ALL}']
-	# 	if '__init__' in f[0]:
-	# 		for l in f:
-	# 			print(l)
-	# for f in files:
-	# 	# nlines+=[f'{[line for line in nline]}{Style.RESET_ALL}']
-	# 	if '__init__' not in f[0]:
-	# 		for l in f:
-	# 			print(l)
+def loc(cd):
+	path=pkg.find_masterpkg(cd)
+	all_py=lsR(path,[])
+	totloc=0
+	subloc=0
+	lines=[]
+	files=[]
+	lst_path_base=path.split('/')
+	lib_py={}
+	colorhl={
+		'from'		:			f'{Fore.LIGHTBLUE_EX}from{Style.RESET_ALL}'		,
+		'import'	: 		f'{Fore.BLUE}import{Style.RESET_ALL}'					,
+		'as'			:			f'{Fore.GREEN}as{Style.RESET_ALL}' 				,
+	}
+	for idx,py in enumerate(all_py):
+		filenr=idx+1
+		#print(py,':\t')
+		shortpath= os.path.join('~','/'.join([d for d in py.split('/') if d not in lst_path_base]))
+		lines+=[f'{filenr}:\t{shortpath}']
+		files+=[[f'{filenr}:\t{shortpath}'],]
+		n=0
+		s=0
+		i=0
+		with open(py,'r') as f:
+			contents= f.readlines()
+		file={
+			'idx' : idx,
+			'path' : shortpath,
+			'contents' : contents,
+			}
+		lib_py[py]=file
+		
+	for py in all_py:
+		print(lib_py[py]['idx'],lib_py[py]['path'])
+		if len(lib_py[py]['contents']) > 0:
+			print(f"Lines of code: {Fore.LIGHTCYAN_EX}{len(lib_py[py]['contents'])}{Style.RESET_ALL}")
+			totloc+=len(lib_py[py]['contents'])
+	print(f'TOTAL LINES OF CODE:{Fore.LIGHTGREEN_EX}{totloc}{Style.RESET_ALL}')

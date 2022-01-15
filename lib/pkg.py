@@ -46,16 +46,21 @@ def is_pkg(path):
 		ispkg= any(["__init__.py" in os.listdir(path)])
 	return ispkg
 
-def find_masterpkg():
+def find_masterpkg(path):
 	"""
 	!!! warning breaks when __init__. is in everyfolder of the path up until /  !!!
 	gets the folder(path) that is the highest up in the path that still is a python package
 	"""
-	path=sys.argv[0]
-	lst_pdps=os.path.split(os.path.abspath(path))[0].split('/')
-	os.chdir(os.path.split(sys.argv[0])[0])
-	return [pkg[0] for pkg in ([path,is_pkg(path) ] for path in  ['/'.join(lst_pdps[:(len(lst_pdps)-idx)]) for idx, folder in enumerate(reversed(lst_pdps)) if os.path.exists('/'.join(lst_pdps[:(
-		len(lst_pdps)-idx)]))][:-1])if pkg[1] == True][-1]
+	path=os.path.abspath(path)
+	if is_pkg(path):
+		if not is_pkg(os.path.split(os.path.abspath(path))[0]):
+			return path
+		lst_pdps=os.path.split(os.path.abspath(path))[0].split('/')
+		os.chdir(os.path.split(sys.argv[0])[0])
+		return [pkg[0] for pkg in ([path,is_pkg(path) ] for path in  ['/'.join(lst_pdps[:(len(lst_pdps)-idx)]) for idx, folder in enumerate(reversed(lst_pdps)) if os.path.exists('/'.join(lst_pdps[:(
+			len(lst_pdps)-idx)]))][:-1])if pkg[1] == True][-1]
+	else:
+		return None
 
 def pkg():
 	pkg=types.SimpleNamespace()
