@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from . import pimp
+from . import main as pimp
 import click as C
 
 @C.group()
